@@ -15,7 +15,7 @@ get '/' do # メモ一覧の表示
   既存のメモリストです。<br />
   #{make_memo_list}
   <a href=\"/new_memo\">メモを作成する<br />
-  <a href=\"/delete_memo\">メモを削除する<br />
+  <a href=\"/delete_memo\">メモを連続削除する<br />
   "
   # redirect to('/index.html')
 end
@@ -79,7 +79,8 @@ get '/:memo_name' do # メモを表示
   "
   参照したメモは#{params['memo_name']}です。内容は以下の通りです。<br />
   #{read_memo(params['memo_name'])} <br />
-  以上です。
+  以上です。 <br /><br />
+  #{make_delete_form(params['memo_name'])}
   <a href=\"/\">メモ一覧へ<br />
   "
 end
