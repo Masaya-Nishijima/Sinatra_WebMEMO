@@ -4,6 +4,7 @@
 require 'sinatra'
 require 'sinatra/reloader'
 
+enable :method_override
 # get '/' do
 #   'This is WEB MEMO app'
 #   '<h1>aaaa</h1>'
@@ -14,6 +15,7 @@ get '/' do # メモ一覧の表示
   既存のメモリストです。<br />
   #{make_memo_list}
   <a href=\"/new_memo\">メモを作成する<br />
+  <a href=\"/delete_memo\">メモを削除する<br />
   "
   # redirect to('/index.html')
 end
@@ -45,20 +47,32 @@ post '/new_memo' do # メモを作成
     file = File.new("memo_data/#{params[:memo_name]}", 'w')
     file.write(params[:memo_body])
     file.close
-    redirect to('/create_file')
+    redirect to('/create_memo')
   end
 end
 
-get '/already_file' do
+get '/already_memo' do
   '
   同名のメモがあります。タイトルを変え作成しなおしてください。<br />
   <a href=/new_memo>メモを再度作成。<br />
   '
 end
 
-get '/create_file' do
+get '/create_memo' do
   'メモを作成しました。 <br />
    <a href="/">メモ一覧へ<br />'
+end
+
+get '/delete_memo' do
+  "
+  <a href=\"/\">メモ一覧へ</a><br />
+  #{make_delete_list}
+  "
+end
+
+delete '/:memo_name' do
+  File.delete("memo_data/#{params['memo_name']}")
+  redirect to('/delete_memo')
 end
 
 get '/:memo_name' do # メモを表示
@@ -82,6 +96,26 @@ end
 # メモの名前からhtmlのaタグリンクを作成するメソッド
 def make_a_tag(memo_name)
   "<a href=\"#{memo_name}\">#{memo_name}<br />"
+end
+
+def make_delete_list
+  files = Dir.glob('*', base: "#{Dir.getwd}/memo_data")
+  list = ''
+  files.size.times do |time|
+    list += make_delete_form(files[time])
+  end
+  list
+end
+
+def make_delete_form(memo_name)
+  "
+  <form method=\"post\" action=\"/#{memo_name}\">
+    #{memo_name}
+    <input type=\"hidden\" name=\"_method\" value=\"delete\">
+    <input type=\"submit\" value=\"delete\">
+  </form>
+  <br />
+    "
 end
 
 # メモの中身を取得するメソッド
