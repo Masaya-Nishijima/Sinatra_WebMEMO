@@ -4,7 +4,7 @@
 require 'sinatra'
 require 'sinatra/reloader'
 
-enable :method_override
+enable :method_override # メソッドオーバーライドを許可する。
 # get '/' do
 #   'This is WEB MEMO app'
 #   '<h1>aaaa</h1>'
@@ -14,6 +14,7 @@ get '/' do # メモ一覧の表示
   "
   既存のメモリストです。<br />
   #{make_memo_list}
+  以上です。<br /> <br/>
   <a href=\"/new_memo\">メモを作成する<br />
   <a href=\"/delete_memo\">メモを連続削除する<br />
   "
@@ -41,19 +42,17 @@ get '/new_memo' do
 end
 
 post '/new_memo' do # メモを作成
-  if File.exist?("memo_data/#{params[:memo_name]}")
-    redirect to('/already_file')
-  else
-    file = File.new("memo_data/#{params[:memo_name]}", 'w')
-    file.write(params[:memo_body])
-    file.close
-    redirect to('/create_memo')
-  end
+  redirect to('/already_memo') if File.exist?("memo_data/#{params[:memo_name]}")
+
+  file = File.new("memo_data/#{params[:memo_name]}", 'w')
+  file.write(params[:memo_body])
+  file.close
+  redirect to('/create_memo')
 end
 
 get '/already_memo' do
   '
-  同名のメモがあります。タイトルを変え作成しなおしてください。<br />
+  名前が空欄、もしくは同名のメモがあります。タイトルを変え作成しなおしてください。<br />
   <a href=/new_memo>メモを再度作成。<br />
   '
 end
@@ -80,9 +79,35 @@ get '/:memo_name' do # メモを表示
   参照したメモは#{params['memo_name']}です。内容は以下の通りです。<br />
   #{read_memo(params['memo_name'])} <br />
   以上です。 <br /><br />
+  <a href=\"/#{params['memo_name']}/editor\">メモを編集する。</a><br />
   #{make_delete_form(params['memo_name'])}
-  <a href=\"/\">メモ一覧へ<br />
+  <a href=\"/\">メモ一覧へ</a><br />
   "
+end
+
+get '/:memo_name/editor' do
+  "
+  編集中のメモは#{params['memo_name']}です。
+  <form method=\"post\" action=\"/#{params['memo_name']}\">
+    <input type=\"hidden\" name=\"_method\" value=\"patch\"> <br />
+    タイトル
+    <input type=\"text\", name=\"new_memo_name\" value=#{params['memo_name']}> <br />
+    内容
+    <input type=\"text\", name=\"memo_body\" value=#{read_memo(params['memo_name'])}> <br />
+    <input type=\"submit\" value=\"変更を保存\">
+  </form>
+  <br />
+  "
+end
+
+patch '/:memo_name' do
+  if params['memo_name'] != params[:new_memo_name]
+    File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{params[:new_memo_name]}")
+  end
+  file = File.new("memo_data/#{params[:new_memo_name]}", 'w+')
+  file.write(params[:memo_body])
+  file.close
+  redirect to('/')
 end
 
 def make_memo_list
@@ -96,7 +121,7 @@ end
 
 # メモの名前からhtmlのaタグリンクを作成するメソッド
 def make_a_tag(memo_name)
-  "<a href=\"#{memo_name}\">#{memo_name}<br />"
+  "<a href=\"#{memo_name}\">#{memo_name}</a><br />"
 end
 
 def make_delete_list
@@ -123,8 +148,5 @@ end
 def read_memo(memo_name)
   return '指定されたメモがありません' unless File.exist?("memo_data/#{params[:memo_name]}")
 
-  file = File.new("memo_data/#{memo_name}", 'r')
-  memo_body = file.read
-  file.close
-  memo_body
+  File.open("memo_data/#{memo_name}", 'r', &:read)
 end
