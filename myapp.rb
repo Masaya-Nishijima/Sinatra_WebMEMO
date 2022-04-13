@@ -16,12 +16,11 @@ get '/' do # メモ一覧の表示
   #{make_memo_list}
   以上です。<br /> <br/>
   <a href=\"/new_memo\">メモを作成する<br />
-  <a href=\"/delete_memo\">メモを連続削除する<br />
   "
   # redirect to('/index.html')
 end
 
-get '/new_memo' do
+get '/new_memo' do # メモの作成フォームを表示
   '
   メモ作成フォームです。
   <form method="post" action="">
@@ -50,28 +49,21 @@ post '/new_memo' do # メモを作成
   redirect to('/create_memo')
 end
 
-get '/already_memo' do
+get '/already_memo' do # 作成したメモに同名のものがある、空欄のときのリダイレクト先
   '
   名前が空欄、もしくは同名のメモがあります。タイトルを変え作成しなおしてください。<br />
   <a href=/new_memo>メモを再度作成。<br />
   '
 end
 
-get '/create_memo' do
+get '/create_memo' do # メモを正しく作成できたときのリダイレクト先
   'メモを作成しました。 <br />
    <a href="/">メモ一覧へ<br />'
 end
 
-get '/delete_memo' do
-  "
-  <a href=\"/\">メモ一覧へ</a><br />
-  #{make_delete_list}
-  "
-end
-
 delete '/:memo_name' do
   File.delete("memo_data/#{params['memo_name']}")
-  redirect to('/delete_memo')
+  redirect to('/')
 end
 
 get '/:memo_name' do # メモを表示
@@ -85,7 +77,7 @@ get '/:memo_name' do # メモを表示
   "
 end
 
-get '/:memo_name/editor' do
+get '/:memo_name/editor' do # メモの編集ページ
   "
   編集中のメモは#{params['memo_name']}です。
   <form method=\"post\" action=\"/#{params['memo_name']}\">
@@ -100,7 +92,7 @@ get '/:memo_name/editor' do
   "
 end
 
-patch '/:memo_name' do
+patch '/:memo_name' do # メモの編集を実行
   if params['memo_name'] != params[:new_memo_name]
     File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{params[:new_memo_name]}")
   end
@@ -110,6 +102,7 @@ patch '/:memo_name' do
   redirect to('/')
 end
 
+# メモ一覧(ハイパーテキスト)を作成する。
 def make_memo_list
   memo_name = Dir.glob('*', base: "#{Dir.getwd}/memo_data")
   list = ''
@@ -124,15 +117,7 @@ def make_a_tag(memo_name)
   "<a href=\"#{memo_name}\">#{memo_name}</a><br />"
 end
 
-def make_delete_list
-  files = Dir.glob('*', base: "#{Dir.getwd}/memo_data")
-  list = ''
-  files.size.times do |time|
-    list += make_delete_form(files[time])
-  end
-  list
-end
-
+# メモを削除するフォーム(Deleteボタン)
 def make_delete_form(memo_name)
   "
   <form method=\"post\" action=\"/#{memo_name}\">
