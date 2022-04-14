@@ -10,6 +10,12 @@ enable :method_override # メソッドオーバーライドを許可する。
 #   '<h1>aaaa</h1>'
 # end
 
+helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+end
+
 get '/not_found' do
   status 404
   '404 Not Found'
@@ -153,5 +159,5 @@ end
 def read_memo(memo_name)
   return '指定されたメモがありません' unless File.exist?("memo_data/#{params[:memo_name]}")
 
-  File.open("memo_data/#{memo_name}", 'r', &:read)
+  h(File.open("memo_data/#{memo_name}", 'r', &:read))
 end
