@@ -12,9 +12,10 @@ enable :method_override # メソッドオーバーライドを許可する。
 
 get '/' do # メモ一覧の表示
   "
-  既存のメモリストです。<br />
+  <link rel=\"styleshee\" href=\"stylesheet.css\">
+  <h1>既存のメモリストです。</h1>
   #{make_memo_list}
-  以上です。<br /> <br/>
+  <br /> <br/>
   <a href=\"/new_memo\">メモを作成する<br />
   "
   # redirect to('/index.html')
@@ -22,21 +23,19 @@ end
 
 get '/new_memo' do # メモの作成フォームを表示
   '
-  メモ作成フォームです。
+  <link rel="stylesheet" href="stylesheet.css">
+  <article>
+  <h1>メモ作成フォームです。</h1>
+  <section>
   <form method="post" action="">
     <div>
-      <label>
-        メモの名前
-        <input type="text" name="memo_name">
-      </label>
-      <br />
-      <label>
-        メモの内容
-        <input type="text" name="memo_body">
-      </label>
+      <label><input type="text" name="memo_name" value="メモの名前"></label> <br />
+      <label><textarea name="memo_body">メモの内容</textarea></label>
     </div>
-    <button type="submit">送信</button>
+    <input type="submit" value="送信">
+  </section>
   </form>
+  </article>
   '
 end
 
@@ -51,42 +50,41 @@ end
 
 get '/already_memo' do # 作成したメモに同名のものがある、空欄のときのリダイレクト先
   '
-  名前が空欄、もしくは同名のメモがあります。タイトルを変え作成しなおしてください。<br />
+  <link rel="stylesheet" href="stylesheet.css">
+  <h1>メモの作成に失敗</h1>
+  <p>名前が空欄、もしくは同名のメモがあります。<br />タイトルを変え作成しなおしてください。</p>
   <a href=/new_memo>メモを再度作成。<br />
   '
 end
 
 get '/create_memo' do # メモを正しく作成できたときのリダイレクト先
-  'メモを作成しました。 <br />
-   <a href="/">メモ一覧へ<br />'
+  '
+  <link rel="stylesheet" href="stylesheet.css">
+  <h1>メモを作成しました。</h1>
+  <a href="/">メモ一覧へ</a>
+  '
 end
 
-delete '/:memo_name' do
+delete '/:memo_name' do # メモの削除メソッド
   File.delete("memo_data/#{params['memo_name']}")
   redirect to('/')
 end
 
-get '/:memo_name' do # メモを表示
-  "
-  参照したメモは#{params['memo_name']}です。内容は以下の通りです。<br />
-  #{read_memo(params['memo_name'])} <br />
-  以上です。 <br /><br />
-  <a href=\"/#{params['memo_name']}/editor\">メモを編集する。</a><br />
-  #{make_delete_form(params['memo_name'])}
-  <a href=\"/\">メモ一覧へ</a><br />
-  "
-end
-
 get '/:memo_name/editor' do # メモの編集ページ
   "
-  編集中のメモは#{params['memo_name']}です。
+  <link rel=\"stylesheet\" href=\"/stylesheet.css\">
+  <article>
+  <section>
+  <h1>#{params['memo_name']}を編集中</h1>
   <form method=\"post\" action=\"/#{params['memo_name']}\">
     <input type=\"hidden\" name=\"_method\" value=\"patch\"> <br />
-    タイトル
-    <input type=\"text\", name=\"new_memo_name\" value=#{params['memo_name']}> <br />
-    内容
-    <input type=\"text\", name=\"memo_body\" value=#{read_memo(params['memo_name'])}> <br />
+    <div>
+      <label><input type=\"text\", name=\"new_memo_name\" value=#{params['memo_name']}></label> <br />
+      <label><textarea name=\"memo_body\">#{read_memo(params['memo_name'])}</textarea></label>
+    </div>
     <input type=\"submit\" value=\"変更を保存\">
+  </section>
+  </article>
   </form>
   <br />
   "
@@ -101,6 +99,23 @@ patch '/:memo_name' do # メモの編集を実行
   file.close
   redirect to('/')
 end
+
+get '/:memo_name' do # メモを表示
+  "
+  <link rel=\"stylesheet\" href=\"/stylesheet.css\">
+  <article>
+  <section>
+  <h1>#{params['memo_name']}</h1>
+  <p>#{read_memo(params['memo_name'])}</p>
+  </section>
+  <a href=\"/#{params['memo_name']}/editor\">メモを編集する。</a><br />
+  #{make_delete_form(params['memo_name'])}
+  <a href=\"/\">メモ一覧へ</a>
+  </article>
+  "
+end
+
+#############################
 
 # メモ一覧(ハイパーテキスト)を作成する。
 def make_memo_list
@@ -121,9 +136,8 @@ end
 def make_delete_form(memo_name)
   "
   <form method=\"post\" action=\"/#{memo_name}\">
-    #{memo_name}
     <input type=\"hidden\" name=\"_method\" value=\"delete\">
-    <input type=\"submit\" value=\"delete\">
+    <input type=\"submit\" value=\"メモを削除\">
   </form>
   <br />
     "
