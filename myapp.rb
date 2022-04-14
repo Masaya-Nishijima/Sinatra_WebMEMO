@@ -10,6 +10,11 @@ enable :method_override # メソッドオーバーライドを許可する。
 #   '<h1>aaaa</h1>'
 # end
 
+get '/not_found' do
+  status 404
+  '404 Not Found'
+end
+
 get '/' do # メモ一覧の表示
   "
   <link rel=\"styleshee\" href=\"stylesheet.css\">
@@ -101,6 +106,7 @@ patch '/:memo_name' do # メモの編集を実行
 end
 
 get '/:memo_name' do # メモを表示
+  redirect('/not_found') if read_memo(params['memo_name']) == '指定されたメモがありません'
   "
   <link rel=\"stylesheet\" href=\"/stylesheet.css\">
   <article>
