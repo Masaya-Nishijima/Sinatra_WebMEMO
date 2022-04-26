@@ -21,32 +21,12 @@ get '/not_found' do
 end
 
 get '/' do # メモ一覧の表示
-  "
-  <link rel=\"styleshee\" href=\"stylesheet.css\">
-  <h1>既存のメモリストです。</h1>
-  #{make_memo_list}
-  <br /> <br/>
-  <a href=\"/new_memo\">メモを作成する<br />
-  "
+  erb :memo_list
   # redirect to('/index.html')
 end
 
 get '/new_memo' do # メモの作成フォームを表示
-  '
-  <link rel="stylesheet" href="stylesheet.css">
-  <article>
-  <h1>メモ作成フォームです。</h1>
-  <section>
-  <form method="post" action="">
-    <div>
-      <label><input type="text" name="memo_name" value="メモの名前"></label> <br />
-      <label><textarea name="memo_body">メモの内容</textarea></label>
-    </div>
-    <input type="submit" value="送信">
-  </section>
-  </form>
-  </article>
-  '
+  erb :new_memo
 end
 
 post '/new_memo' do # メモを作成
@@ -59,20 +39,11 @@ post '/new_memo' do # メモを作成
 end
 
 get '/already_memo' do # 作成したメモに同名のものがある、空欄のときのリダイレクト先
-  '
-  <link rel="stylesheet" href="stylesheet.css">
-  <h1>メモの作成に失敗</h1>
-  <p>名前が空欄、もしくは同名のメモがあります。<br />タイトルを変え作成しなおしてください。</p>
-  <a href=/new_memo>メモを再度作成。<br />
-  '
+  erb :already_memo
 end
 
 get '/create_memo' do # メモを正しく作成できたときのリダイレクト先
-  '
-  <link rel="stylesheet" href="stylesheet.css">
-  <h1>メモを作成しました。</h1>
-  <a href="/">メモ一覧へ</a>
-  '
+  erb :create_memo
 end
 
 delete '/:memo_name' do # メモの削除メソッド
@@ -81,23 +52,7 @@ delete '/:memo_name' do # メモの削除メソッド
 end
 
 get '/:memo_name/editor' do # メモの編集ページ
-  "
-  <link rel=\"stylesheet\" href=\"/stylesheet.css\">
-  <article>
-  <section>
-  <h1>#{params['memo_name']}を編集中</h1>
-  <form method=\"post\" action=\"/#{params['memo_name']}\">
-    <input type=\"hidden\" name=\"_method\" value=\"patch\"> <br />
-    <div>
-      <label><input type=\"text\", name=\"new_memo_name\" value=#{params['memo_name']}></label> <br />
-      <label><textarea name=\"memo_body\">#{read_memo(params['memo_name'])}</textarea></label>
-    </div>
-    <input type=\"submit\" value=\"変更を保存\">
-  </section>
-  </article>
-  </form>
-  <br />
-  "
+  erb :editor_memo
 end
 
 patch '/:memo_name' do # メモの編集を実行
@@ -112,18 +67,7 @@ end
 
 get '/:memo_name' do # メモを表示
   redirect('/not_found') if read_memo(params['memo_name']) == '指定されたメモがありません'
-  "
-  <link rel=\"stylesheet\" href=\"/stylesheet.css\">
-  <article>
-  <section>
-  <h1>#{params['memo_name']}</h1>
-  <p>#{read_memo(params['memo_name'])}</p>
-  </section>
-  <a href=\"/#{params['memo_name']}/editor\">メモを編集する。</a><br />
-  #{make_delete_form(params['memo_name'])}
-  <a href=\"/\">メモ一覧へ</a>
-  </article>
-  "
+  erb :memo
 end
 
 #############################
@@ -145,13 +89,8 @@ end
 
 # メモを削除するフォーム(Deleteボタン)
 def make_delete_form(memo_name)
-  "
-  <form method=\"post\" action=\"/#{memo_name}\">
-    <input type=\"hidden\" name=\"_method\" value=\"delete\">
-    <input type=\"submit\" value=\"メモを削除\">
-  </form>
-  <br />
-    "
+  @memo_name = params['memo_name']
+  erb :delete_form
 end
 
 # メモの中身を取得するメソッド
