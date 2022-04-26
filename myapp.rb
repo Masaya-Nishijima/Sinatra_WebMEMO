@@ -4,7 +4,6 @@
 require 'sinatra'
 require 'sinatra/reloader'
 
-enable :method_override # メソッドオーバーライドを許可する。
 # get '/' do
 #   'This is WEB MEMO app'
 #   '<h1>aaaa</h1>'
