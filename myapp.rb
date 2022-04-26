@@ -29,19 +29,16 @@ get '/memo/new_memo' do # メモの作成フォームを表示
 end
 
 post '/memo' do # メモを作成
-  redirect to('/already_memo') if File.exist?("memo_data/#{params[:memo_name]}")
-
-  file = File.new("memo_data/#{params[:memo_name]}", 'w')
+  params[:memo_name].delete!("/.<>")
+  unique_name = generate_unique_name(params[:memo_name])
+  file = File.new("memo_data/#{unique_name}", 'w')
   file.write(params[:memo_body])
   file.close
   redirect to('/memo')
 end
 
-get '/already_memo' do # 作成したメモに同名のものがある、空欄のときのリダイレクト先
-  erb :already_memo
-end
-
 delete '/memo/:memo_name' do # メモの削除メソッド
+  params[:memo_name].delete!("/.<>")
   File.delete("memo_data/#{params['memo_name']}")
   redirect to('/memo')
 end
@@ -51,8 +48,11 @@ get '/memo/:memo_name/editor' do # メモの編集ページ
 end
 
 patch '/memo/:memo_name' do # メモの編集を実行
+  params[:memo_name].delete!("/.<>")
+  params[:new_memo_name].delete!("/.<>")
+  unique_new_name = generate_unique_name(params[:new_memo_name])
   if params['memo_name'] != params[:new_memo_name]
-    File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{params[:new_memo_name]}")
+    File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{unique_new_name}")
   end
   file = File.new("memo_data/#{params[:new_memo_name]}", 'w+')
   file.write(params[:memo_body])
@@ -94,3 +94,14 @@ def read_memo(memo_name)
 
   h(File.open("memo_data/#{memo_name}", 'r', &:read))
 end
+
+def generate_unique_name(memo_name)
+  return memo_name if !File.exist?("memo_data/#{memo_name}")
+  i = 2
+  while File.exist?("memo_data/#{memo_name}-" + i.to_s)
+    i += 1
+  end
+  unique_memo_name = memo_name+ '-' + i.to_s
+  return unique_memo_name
+end
+
