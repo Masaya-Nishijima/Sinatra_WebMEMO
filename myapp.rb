@@ -29,7 +29,7 @@ get '/memo/new_memo' do # メモの作成フォームを表示
 end
 
 post '/memo' do # メモを作成
-  params[:memo_name].delete!("/.<>")
+  params[:memo_name].delete!('/.<>')
   unique_name = generate_unique_name(params[:memo_name])
   file = File.new("memo_data/#{unique_name}", 'w')
   file.write(params[:memo_body])
@@ -38,7 +38,7 @@ post '/memo' do # メモを作成
 end
 
 delete '/memo/:memo_name' do # メモの削除メソッド
-  params[:memo_name].delete!("/.<>")
+  params[:memo_name].delete!('/.<>')
   File.delete("memo_data/#{params['memo_name']}")
   redirect to('/memo')
 end
@@ -48,12 +48,10 @@ get '/memo/:memo_name/editor' do # メモの編集ページ
 end
 
 patch '/memo/:memo_name' do # メモの編集を実行
-  params[:memo_name].delete!("/.<>")
-  params[:new_memo_name].delete!("/.<>")
+  params[:memo_name].delete!('/.<>')
+  params[:new_memo_name].delete!('/.<>')
   unique_new_name = generate_unique_name(params[:new_memo_name])
-  if params['memo_name'] != params[:new_memo_name]
-    File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{unique_new_name}")
-  end
+  File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{unique_new_name}") if params['memo_name'] != params[:new_memo_name]
   file = File.new("memo_data/#{params[:new_memo_name]}", 'w+')
   file.write(params[:memo_body])
   file.close
@@ -83,7 +81,7 @@ def make_a_tag(memo_name)
 end
 
 # メモを削除するフォーム(Deleteボタン)
-def make_delete_form(memo_name)
+def make_delete_form(_memo_name)
   @memo_name = params['memo_name']
   erb :delete_form
 end
@@ -96,12 +94,9 @@ def read_memo(memo_name)
 end
 
 def generate_unique_name(memo_name)
-  return memo_name if !File.exist?("memo_data/#{memo_name}")
-  i = 2
-  while File.exist?("memo_data/#{memo_name}-" + i.to_s)
-    i += 1
-  end
-  unique_memo_name = memo_name+ '-' + i.to_s
-  return unique_memo_name
-end
+  return memo_name unless File.exist?("memo_data/#{memo_name}")
 
+  i = 2
+  i += 1 while File.exist?("memo_data/#{memo_name}-" + i.to_s)
+  "#{memo_name}-#{i}"
+end
