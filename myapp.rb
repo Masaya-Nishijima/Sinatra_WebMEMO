@@ -15,9 +15,8 @@ helpers do
   end
 end
 
-get '/not_found' do
-  status 404
-  '404 Not Found'
+not_found do
+  halt 404, '404 Not Found'
 end
 
 get '/' do # メモ一覧の表示
@@ -35,15 +34,11 @@ post '/new_memo' do # メモを作成
   file = File.new("memo_data/#{params[:memo_name]}", 'w')
   file.write(params[:memo_body])
   file.close
-  redirect to('/create_memo')
+  redirect to('/')
 end
 
 get '/already_memo' do # 作成したメモに同名のものがある、空欄のときのリダイレクト先
   erb :already_memo
-end
-
-get '/create_memo' do # メモを正しく作成できたときのリダイレクト先
-  erb :create_memo
 end
 
 delete '/:memo_name' do # メモの削除メソッド
@@ -66,7 +61,7 @@ patch '/:memo_name' do # メモの編集を実行
 end
 
 get '/:memo_name' do # メモを表示
-  redirect('/not_found') if read_memo(params['memo_name']) == '指定されたメモがありません'
+  redirect(not_found) if read_memo(params['memo_name']) == '指定されたメモがありません'
   erb :memo
 end
 
