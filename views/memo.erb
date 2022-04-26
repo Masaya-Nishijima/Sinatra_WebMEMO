@@ -5,8 +5,8 @@
   <h1><%= params['memo_name'] %></h1>
   <p><%= read_memo(params['memo_name']) %></p>
   </section>
-  <a href="/<%= params['memo_name'] %>/editor">メモを編集する。</a><br />
+  <a href="/memo/<%= params['memo_name'] %>/editor">メモを編集する。</a><br />
   <%= make_delete_form(params['memo_name']) %>
-  <a href="/">メモ一覧へ</a>
+  <a href="/memo">メモ一覧へ</a>
   </article>
   "

@@ -2,7 +2,7 @@
 <article>
 <section>
 <h1><%= params['memo_name'] %>を編集中</h1>
-<form method="post" action="/<%= params['memo_name'] %>">
+<form method="post" action="/memo/<%= params['memo_name'] %>">
   <input type="hidden" name="_method" value="patch"> <br />
   <div>
     <label><input type="text", name="new_memo_name" value=<%= params['memo_name'] %>></label> <br />

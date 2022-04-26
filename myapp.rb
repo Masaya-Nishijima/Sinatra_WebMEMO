@@ -19,48 +19,48 @@ not_found do
   halt 404, '404 Not Found'
 end
 
-get '/' do # メモ一覧の表示
+get '/memo' do # メモ一覧の表示
   erb :memo_list
   # redirect to('/index.html')
 end
 
-get '/new_memo' do # メモの作成フォームを表示
+get '/memo/new_memo' do # メモの作成フォームを表示
   erb :new_memo
 end
 
-post '/new_memo' do # メモを作成
+post '/memo' do # メモを作成
   redirect to('/already_memo') if File.exist?("memo_data/#{params[:memo_name]}")
 
   file = File.new("memo_data/#{params[:memo_name]}", 'w')
   file.write(params[:memo_body])
   file.close
-  redirect to('/')
+  redirect to('/memo')
 end
 
 get '/already_memo' do # 作成したメモに同名のものがある、空欄のときのリダイレクト先
   erb :already_memo
 end
 
-delete '/:memo_name' do # メモの削除メソッド
+delete '/memo/:memo_name' do # メモの削除メソッド
   File.delete("memo_data/#{params['memo_name']}")
-  redirect to('/')
+  redirect to('/memo')
 end
 
-get '/:memo_name/editor' do # メモの編集ページ
+get '/memo/:memo_name/editor' do # メモの編集ページ
   erb :editor_memo
 end
 
-patch '/:memo_name' do # メモの編集を実行
+patch '/memo/:memo_name' do # メモの編集を実行
   if params['memo_name'] != params[:new_memo_name]
     File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{params[:new_memo_name]}")
   end
   file = File.new("memo_data/#{params[:new_memo_name]}", 'w+')
   file.write(params[:memo_body])
   file.close
-  redirect to('/')
+  redirect to('/memo')
 end
 
-get '/:memo_name' do # メモを表示
+get '/memo/:memo_name' do # メモを表示
   redirect(not_found) if read_memo(params['memo_name']) == '指定されたメモがありません'
   erb :memo
 end
@@ -79,7 +79,7 @@ end
 
 # メモの名前からhtmlのaタグリンクを作成するメソッド
 def make_a_tag(memo_name)
-  "<a href=\"#{memo_name}\">#{memo_name}</a><br />"
+  "<a href=\"/memo/#{memo_name}\">#{memo_name}</a><br />"
 end
 
 # メモを削除するフォーム(Deleteボタン)
