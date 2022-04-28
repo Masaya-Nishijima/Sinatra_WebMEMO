@@ -93,10 +93,9 @@ def read_memo(memo_name)
   h(File.open("memo_data/#{memo_name}", 'r', &:read))
 end
 
-def exists_memo?(memo_name)
+def exists_memo?(_memo_name)
   read_memo(params['memo_name']) == '指定されたメモがありません'
 end
-
 
 def generate_unique_name(memo_name)
   return memo_name unless File.exist?("memo_data/#{memo_name}")
