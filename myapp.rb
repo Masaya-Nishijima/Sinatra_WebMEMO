@@ -4,10 +4,9 @@
 require 'sinatra'
 require 'sinatra/reloader'
 
-# get '/' do
-#   'This is WEB MEMO app'
-#   '<h1>aaaa</h1>'
-# end
+get '/' do
+  redirect to('/memo')
+end
 
 helpers do
   def h(text)
@@ -21,7 +20,6 @@ end
 
 get '/memo' do # メモ一覧の表示
   erb :memo_list
-  # redirect to('/index.html')
 end
 
 get '/memo/new_memo' do # メモの作成フォームを表示
