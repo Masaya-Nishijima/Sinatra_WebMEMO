@@ -4,6 +4,10 @@
   <p><%= read_memo(params['memo_name']) %></p>
   </section>
   <a href="/memo/<%= params['memo_name'] %>/editor">メモを編集する。</a><br />
-  <%= make_delete_form(params['memo_name']) %>
+  <form method="post" action="/memo/<%= @memo_name %>">
+    <input type="hidden" name="_method" value="delete">
+    <input type="submit" value="メモを削除">
+  </form>
+  <br />
   <a href="/memo">メモ一覧へ</a>
   </article>
