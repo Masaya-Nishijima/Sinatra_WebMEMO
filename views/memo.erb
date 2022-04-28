@@ -3,11 +3,12 @@
   <h1><%= params['memo_name'] %></h1>
   <p><%= read_memo(params['memo_name']) %></p>
   </section>
-  <a href="/memo/<%= params['memo_name'] %>/editor">メモを編集する。</a><br />
-  <form method="post" action="/memo/<%= @memo_name %>">
-    <input type="hidden" name="_method" value="delete">
-    <input type="submit" value="メモを削除">
-  </form>
-  <br />
+  <h2><a href="/memo/<%= params['memo_name'] %>/editor">メモを編集する。</a></h2>
+  <div>
+    <form method="post" action="/memo/<%= @memo_name %>">
+      <input type="hidden" name="_method" value="delete">
+      <input type="submit" value="メモを削除">
+    </form>
+  </div>
   <a href="/memo">メモ一覧へ</a>
   </article>
