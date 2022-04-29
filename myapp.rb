@@ -80,21 +80,15 @@ def make_a_tag(memo_name)
   "<a href=\"/memo/#{memo_name}\">#{memo_name}</a><br />"
 end
 
-# メモを削除するフォーム(Deleteボタン)
-def make_delete_form(_memo_name)
-  @memo_name = params['memo_name']
-  erb :delete_form
-end
-
 # メモの中身を取得するメソッド
 def read_memo(memo_name)
-  return '指定されたメモがありません' unless File.exist?("memo_data/#{params[:memo_name]}")
+  return '指定されたメモがありません' unless File.exist?("memo_data/#{memo_name}")
 
   h(File.open("memo_data/#{memo_name}", 'r', &:read))
 end
 
-def exists_memo?(_memo_name)
-  read_memo(params['memo_name']) == '指定されたメモがありません'
+def exists_memo?(memo_name)
+  !File.exist?("memo_data/#{memo_name}")
 end
 
 def generate_unique_name(memo_name)
