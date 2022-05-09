@@ -5,7 +5,7 @@
   <input type="hidden" name="_method" value="patch">
   <div>
     <label><input type="text", name="new_memo_name" value=<%= params['memo_name'] %>></label>
-    <label><textarea name="memo_body"><%= read_memo(params['memo_name']) %></textarea></label>
+    <label><textarea name="memo_body"><%= DATABASE.exec("SELECT memo_body FROM memo WHERE memo_name = '#{params[:memo_name]}'").values.flatten[0] %></textarea></label>
   </div>
   <input type="submit" value="変更を保存">
 </section>

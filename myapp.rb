@@ -3,6 +3,9 @@
 # myapp.rb
 require 'sinatra'
 require 'sinatra/reloader'
+require 'pg'
+
+DATABASE = PG.connect(dbname: 'sinatra_web_app')
 
 DANGEROUS_STRING = '/.<>'
 
@@ -31,15 +34,13 @@ end
 post '/memo' do # メモを作成
   params[:memo_name].delete!(DANGEROUS_STRING)
   unique_name = generate_unique_name(params[:memo_name])
-  file = File.new("memo_data/#{unique_name}", 'w')
-  file.write(params[:memo_body])
-  file.close
+  DATABASE.exec("INSERT INTO memo values ('#{unique_name}', '#{params[:memo_body]}')")
   redirect to('/memo')
 end
 
 delete '/memo/:memo_name' do # メモの削除メソッド
   params[:memo_name].delete!(DANGEROUS_STRING)
-  File.delete("memo_data/#{params['memo_name']}")
+  DATABASE.exec("DELETE FROM memo WHERE memo_name = '#{params[:memo_name]}'")
   redirect to('/memo')
 end
 
@@ -50,51 +51,27 @@ end
 patch '/memo/:memo_name' do # メモの編集を実行
   params[:memo_name].delete!(DANGEROUS_STRING)
   params[:new_memo_name].delete!(DANGEROUS_STRING)
+  params[:memo_body].delete!(DANGEROUS_STRING)
   unique_new_name = generate_unique_name(params[:new_memo_name])
-  File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{unique_new_name}") if params['memo_name'] != params[:new_memo_name]
-  file = File.new("memo_data/#{params[:new_memo_name]}", 'w+')
-  file.write(params[:memo_body])
-  file.close
+  DATABASE.exec("UPDATE memo SET memo_name = '#{unique_new_name}', memo_body = '#{params[:memo_body]}' WHERE memo_name = '#{params[:memo_name]}'")
   redirect to('/memo')
 end
 
 get '/memo/:memo_name' do # メモを表示
-  redirect(not_found) if exists_memo?(params['memo_name'])
+  memo_array = DATABASE.exec("SELECT * FROM memo WHERE memo_name = '#{params[:memo_name]}'").values[0]
+  redirect(not_found) if memo_array.nil?
+  @memo = { memo_name: memo_array[0], memo_body: memo_array[1] }
+
   erb :memo
 end
 
 #############################
 
-# メモ一覧(ハイパーテキスト)を作成する。
-def make_memo_list
-  memo_name = Dir.glob('*', base: "#{Dir.getwd}/memo_data")
-  list = ''
-  memo_name.size.times do |time|
-    list += make_a_tag(memo_name[time])
-  end
-  list
-end
-
-# メモの名前からhtmlのaタグリンクを作成するメソッド
-def make_a_tag(memo_name)
-  "<a href=\"/memo/#{memo_name}\">#{memo_name}</a><br />"
-end
-
-# メモの中身を取得するメソッド
-def read_memo(memo_name)
-  return '指定されたメモがありません' unless File.exist?("memo_data/#{memo_name}")
-
-  h(File.open("memo_data/#{memo_name}", 'r', &:read))
-end
-
-def exists_memo?(memo_name)
-  !File.exist?("memo_data/#{memo_name}")
-end
-
 def generate_unique_name(memo_name)
-  return memo_name unless File.exist?("memo_data/#{memo_name}")
+  already_memo_names = DATABASE.exec('SELECT memo_name FROM memo').values.flatten
+  return memo_name if already_memo_names.find { |already_memo_name| already_memo_name == memo_name }.nil?
 
   i = 2
-  i += 1 while File.exist?("memo_data/#{memo_name}-" + i.to_s)
+  i += 1 until already_memo_names.find { |already_memo_name| already_memo_name == ("#{memo_name}-#{i}") }.nil?
   "#{memo_name}-#{i}"
 end

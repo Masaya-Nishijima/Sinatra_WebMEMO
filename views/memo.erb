@@ -1,11 +1,11 @@
   <article>
   <section>
-  <h1><%= params['memo_name'] %></h1>
-  <p><%= read_memo(params['memo_name']) %></p>
+  <h1><%= @memo[:memo_name] %></h1>
+  <p><%= @memo[:memo_body] %></p>
   </section>
-  <h2><a href="/memo/<%= params['memo_name'] %>/editor">メモを編集する。</a></h2>
+  <h2><a href="/memo/<%= @memo[:memo_name] %>/editor">メモを編集する。</a></h2>
   <div>
-    <form method="post" action="/memo/<%= @memo_name %>">
+    <form method="post" action="/memo/<%= @memo[:memo_name] %>">
       <input type="hidden" name="_method" value="delete">
       <input type="submit" value="メモを削除">
     </form>
