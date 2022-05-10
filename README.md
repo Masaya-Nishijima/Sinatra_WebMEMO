@@ -5,6 +5,8 @@
 初回セットアップ
 > $ rake all
 
+(要 psql -U postgresでDBにアクセスできる環境)
+
 サーバーの起動
 > $ ruby myapp.rb
 
