@@ -58,9 +58,9 @@ patch '/memo/:memo_name' do # メモの編集を実行
 end
 
 get '/memo/:memo_name' do # メモを表示
-  memo_array = DATABASE.exec("SELECT * FROM memo WHERE memo_name = '#{params[:memo_name]}'").values[0]
-  redirect(not_found) if memo_array.nil?
-  @memo = { memo_name: memo_array[0], memo_body: memo_array[1] }
+  memo_data = DATABASE.exec("SELECT * FROM memo WHERE memo_name = '#{params[:memo_name]}'").values[0]
+  redirect(not_found) if memo_data.nil?
+  @memo = { memo_name: memo_data[0], memo_body: memo_data[1] }
 
   erb :memo
 end
