@@ -70,7 +70,7 @@ end
 #############################
 
 def generate_unique_name(memo_name)
-  already_memo_names = DATABASE.exec('SELECT memo_name FROM memo').values.flatten
+  already_memo_names = DATABASE.exec_params('SELECT memo_name FROM memo WHERE memo_name LIKE $1', [memo_name + '%']).values.flatten
   return memo_name if already_memo_names.find { |already_memo_name| already_memo_name == memo_name }.nil?
 
   i = 2
