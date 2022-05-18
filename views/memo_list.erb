@@ -1,9 +1,7 @@
 <h1>既存のメモリストです。</h1>
 <ul>
-  <% DATABASE.exec('SELECT memo_name FROM memo') do |result| %>
-    <% result.each do |row| %>
-      <li><a href="/memo/<%=  row['memo_name'] %>"><%= h(row['memo_name'])%></a></li>
-    <% end %>
+  <% @all_memo_names.each do |memo| %>
+    <li><a href="/memo/<%= h(memo['memo_name']) %>"><%= h(memo['memo_name'])%></a></li>
   <% end %>
 </ul>
 <h2><a href="/memo/new_memo">メモを作成する</a></h2>

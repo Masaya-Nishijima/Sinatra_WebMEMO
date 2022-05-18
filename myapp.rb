@@ -24,6 +24,7 @@ not_found do
 end
 
 get '/memo' do # メモ一覧の表示
+  @all_memo_names = DATABASE.exec('SELECT memo_name FROM memo')
   erb :memo_list
 end
 
@@ -45,6 +46,7 @@ delete '/memo/:memo_name' do # メモの削除メソッド
 end
 
 get '/memo/:memo_name/editor' do # メモの編集ページ
+  @memo_body = DATABASE.exec_params("SELECT memo_body FROM memo WHERE memo_name = $1", [params[:memo_name]])
   erb :editor_memo
 end
 
