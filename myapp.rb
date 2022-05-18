@@ -54,7 +54,12 @@ patch '/memo/:memo_name' do # メモの編集を実行
   # params[:memo_name].delete!(DANGEROUS_STRING)
   params[:new_memo_name].delete!(DANGEROUS_STRING)
   # params[:memo_body].delete!(DANGEROUS_STRING)
-  unique_new_name = generate_unique_name(params[:new_memo_name])
+  unique_new_name =
+  unless params[:new_memo_name] == params[:memo_name] # 編集元のメモと同名の場合に連番を振られないようにする。
+    generate_unique_name(params[:new_memo_name])
+  else
+    params[:new_memo_name]
+  end
   DATABASE.exec_params("UPDATE memo SET memo_name = $1, memo_body = $2 WHERE memo_name = $3", [unique_new_name, params[:memo_body], params[:memo_name]])
   redirect to('/memo')
 end
