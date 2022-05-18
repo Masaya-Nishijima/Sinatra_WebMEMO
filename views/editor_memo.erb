@@ -1,11 +1,11 @@
 <article>
 <section>
-<h1><%= params['memo_name'] %>を編集中</h1>
-<form method="post" action="/memo/<%= params['memo_name'] %>">
+<h1><%= h(params['memo_name']) %>を編集中</h1>
+<form method="post" action="/memo/<%= h(params['memo_name']) %>">
   <input type="hidden" name="_method" value="patch">
   <div>
-    <label><input type="text", name="new_memo_name" value=<%= params['memo_name'] %>></label>
-    <label><textarea name="memo_body"><%= @memo_body.values.flatten[0] %></textarea></label>
+    <label><input type="text", name="new_memo_name" value=<%= h(params['memo_name']) %>></label>
+    <label><textarea name="memo_body"><%= h(@memo_body.values.flatten[0]) %></textarea></label>
   </div>
   <input type="submit" value="変更を保存">
 </section>
