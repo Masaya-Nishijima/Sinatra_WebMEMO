@@ -51,9 +51,7 @@ get '/memo/:memo_name/editor' do # メモの編集ページ
 end
 
 patch '/memo/:memo_name' do # メモの編集を実行
-  # params[:memo_name].delete!(DANGEROUS_STRING)
   params[:new_memo_name].delete!(DANGEROUS_STRING)
-  # params[:memo_body].delete!(DANGEROUS_STRING)
   unique_new_name =
     if params[:new_memo_name] == params[:memo_name]
       params[:new_memo_name]
