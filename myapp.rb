@@ -7,8 +7,6 @@ require 'pg'
 
 DATABASE = PG.connect(dbname: 'sinatra_web_app')
 
-DANGEROUS_STRING = '/'
-
 get '/' do
   redirect to('/memo')
 end
