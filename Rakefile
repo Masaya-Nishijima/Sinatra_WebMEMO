@@ -18,7 +18,7 @@ task files: ['memo_data', 'public/stylesheet.css']
 desc 'DB作成'
 task :database do
   sh 'psql -U postgres -c "CREATE DATABASE sinatra_web_app"'
-  sh 'psql -U postgres -c "CREATE TABLE memo (memo_name text, memo_body text, PRIMARY KEY (memo_name))" sinatra_web_app'
+  sh 'psql -U postgres -c "CREATE TABLE memo (id serial, memo_name text, memo_body text, PRIMARY KEY (id))" sinatra_web_app'
 end
 
 desc '初期セットアップ'

@@ -3,9 +3,9 @@
   <h1><%= h(@memo[:memo_name]) %></h1>
   <p><%= h(@memo[:memo_body]) %></p>
   </section>
-  <h2><a href="/memo/<%= h(@memo[:memo_name]) %>/editor">メモを編集する。</a></h2>
+  <h2><a href="/memo/<%= h(@memo[:memo_id]) %>/editor">メモを編集する。</a></h2>
   <div>
-    <form method="post" action="/memo/<%= h(@memo[:memo_name]) %>">
+    <form method="post" action="/memo/<%= h(@memo[:memo_id]) %>">
       <input type="hidden" name="_method" value="delete">
       <input type="submit" value="メモを削除">
     </form>
