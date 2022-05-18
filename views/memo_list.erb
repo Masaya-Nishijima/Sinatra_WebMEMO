@@ -2,7 +2,7 @@
 <ul>
   <% DATABASE.exec('SELECT memo_name FROM memo') do |result| %>
     <% result.each do |row| %>
-      <li><a href="/memo/<%=  row['memo_name'] %>"><%= row['memo_name']%></a></li>
+      <li><a href="/memo/<%=  row['memo_name'] %>"><%= h(row['memo_name'])%></a></li>
     <% end %>
   <% end %>
 </ul>
