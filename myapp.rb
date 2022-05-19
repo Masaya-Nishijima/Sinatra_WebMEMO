@@ -3,8 +3,9 @@
 # myapp.rb
 require 'sinatra'
 require 'sinatra/reloader'
+require 'pg'
 
-DANGEROUS_STRING = '/.<>'
+DATABASE = PG.connect(dbname: 'sinatra_web_app')
 
 get '/' do
   redirect to('/memo')
@@ -21,6 +22,7 @@ not_found do
 end
 
 get '/memo' do # メモ一覧の表示
+  @all_memo_names = DATABASE.exec('SELECT memo_name, id FROM memo')
   erb :memo_list
 end
 
@@ -29,72 +31,34 @@ get '/memo/new_memo' do # メモの作成フォームを表示
 end
 
 post '/memo' do # メモを作成
-  params[:memo_name].delete!(DANGEROUS_STRING)
-  unique_name = generate_unique_name(params[:memo_name])
-  file = File.new("memo_data/#{unique_name}", 'w')
-  file.write(params[:memo_body])
-  file.close
+  DATABASE.exec_params('INSERT INTO memo (memo_name, memo_body) values ($1, $2)', [params[:memo_name], params[:memo_body]])
   redirect to('/memo')
 end
 
-delete '/memo/:memo_name' do # メモの削除メソッド
-  params[:memo_name].delete!(DANGEROUS_STRING)
-  File.delete("memo_data/#{params['memo_name']}")
+delete '/memo/:memo_id' do # メモの削除メソッド
+  DATABASE.exec_params('DELETE FROM memo WHERE id = $1', [params[:memo_id]])
   redirect to('/memo')
 end
 
-get '/memo/:memo_name/editor' do # メモの編集ページ
+get '/memo/:memo_id/editor' do # メモの編集ページ
+  get_memo(params[:memo_id])
   erb :editor_memo
 end
 
-patch '/memo/:memo_name' do # メモの編集を実行
-  params[:memo_name].delete!(DANGEROUS_STRING)
-  params[:new_memo_name].delete!(DANGEROUS_STRING)
-  unique_new_name = generate_unique_name(params[:new_memo_name])
-  File.rename("#{Dir.getwd}/memo_data/#{params['memo_name']}", "#{Dir.getwd}/memo_data/#{unique_new_name}") if params['memo_name'] != params[:new_memo_name]
-  file = File.new("memo_data/#{params[:new_memo_name]}", 'w+')
-  file.write(params[:memo_body])
-  file.close
+patch '/memo/:memo_id' do # メモの編集を実行
+  DATABASE.exec_params('UPDATE memo SET memo_name = $1, memo_body = $2 WHERE id = $3', [params[:new_memo_name], params[:memo_body], params[:memo_id]])
   redirect to('/memo')
 end
 
-get '/memo/:memo_name' do # メモを表示
-  redirect(not_found) if exists_memo?(params['memo_name'])
+get '/memo/:memo_id' do # メモを表示
+  get_memo(params[:memo_id])
+
   erb :memo
 end
 
-#############################
+##### ↑ルーティング ↓メソッド #####
 
-# メモ一覧(ハイパーテキスト)を作成する。
-def make_memo_list
-  memo_name = Dir.glob('*', base: "#{Dir.getwd}/memo_data")
-  list = ''
-  memo_name.size.times do |time|
-    list += make_a_tag(memo_name[time])
-  end
-  list
-end
-
-# メモの名前からhtmlのaタグリンクを作成するメソッド
-def make_a_tag(memo_name)
-  "<a href=\"/memo/#{memo_name}\">#{memo_name}</a><br />"
-end
-
-# メモの中身を取得するメソッド
-def read_memo(memo_name)
-  return '指定されたメモがありません' unless File.exist?("memo_data/#{memo_name}")
-
-  h(File.open("memo_data/#{memo_name}", 'r', &:read))
-end
-
-def exists_memo?(memo_name)
-  !File.exist?("memo_data/#{memo_name}")
-end
-
-def generate_unique_name(memo_name)
-  return memo_name unless File.exist?("memo_data/#{memo_name}")
-
-  i = 2
-  i += 1 while File.exist?("memo_data/#{memo_name}-" + i.to_s)
-  "#{memo_name}-#{i}"
+def get_memo(memo_id)
+  @memo = DATABASE.exec_params('SELECT * FROM memo WHERE id = $1', [memo_id]).first
+  redirect(not_found) if @memo.nil?
 end

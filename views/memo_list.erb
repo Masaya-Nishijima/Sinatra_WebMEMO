@@ -1,3 +1,7 @@
 <h1>既存のメモリストです。</h1>
-<div><%= make_memo_list %></div>
+<ul>
+  <% @all_memo_names.each do |memo| %>
+    <li><a href="/memo/<%= h(memo['id']) %>"><%= h(memo['memo_name'])%></a></li>
+  <% end %>
+</ul>
 <h2><a href="/memo/new_memo">メモを作成する</a></h2>
