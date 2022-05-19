@@ -41,7 +41,7 @@ delete '/memo/:memo_id' do # メモの削除メソッド
 end
 
 get '/memo/:memo_id/editor' do # メモの編集ページ
-  @memo = get_memo(params[:memo_id])
+  get_memo(params[:memo_id])
   erb :editor_memo
 end
 
@@ -51,7 +51,7 @@ patch '/memo/:memo_id' do # メモの編集を実行
 end
 
 get '/memo/:memo_id' do # メモを表示
-  @memo = get_memo(params[:memo_id])
+  get_memo(params[:memo_id])
 
   erb :memo
 end
@@ -59,7 +59,6 @@ end
 ##### ↑ルーティング ↓メソッド #####
 
 def get_memo(memo_id)
-  memo = DATABASE.exec_params('SELECT * FROM memo WHERE id = $1', [memo_id]).first
-  redirect(not_found) if memo.nil?
-  memo
+  @memo = DATABASE.exec_params('SELECT * FROM memo WHERE id = $1', [memo_id]).first
+  redirect(not_found) if @memo.nil?
 end
